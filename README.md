@@ -1,2 +1,2 @@
 # Selenium-Instagram
-! [] (IGTest.gif)
+![](IGTest.gif)
