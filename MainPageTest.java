@@ -9,19 +9,27 @@ import java.util.List;
 import java.util.Random;
 
 public class MainPageTest {
-    public WebDriver driver = setDriver();
-    public Actions actions = new Actions(driver);
-    public Random rand = new Random();
-    public int setAttempts = 3;
-    public int followRate = 10;
-    public String username = "sudokevin";
-    public String password = "jhunter";
-    public WebDriver setDriver() {
+    WebDriver driver = setDriver();
+    Actions actions = new Actions(driver);
+    Random rand = new Random();
+    int setAttempts = 3;
+    int followRate = 10;
+    String username = "sudokevin";
+    String password = "jhunter";
+
+    WebDriver setDriver() {
         System.setProperty("webdriver.chrome.driver", "C:/Programs/chromedriver_win32/chromedriver.exe");
         return new ChromeDriver();
     }
-    public List<WebElement> getPosts(int attempts) throws InterruptedException {
-        Thread.sleep(1000);
+
+    void navigate(String[] keys) {
+        for (String key : keys) {
+            actions.sendKeys(Keys.valueOf(key)).build().perform();
+        }
+    }
+
+    List<WebElement> getPosts(int attempts) throws InterruptedException {
+        Thread.sleep(2000);
         List<WebElement> posts = driver.findElements(By.cssSelector("div._9AhH0"));
         if (!posts.isEmpty()) {
             return posts;
@@ -30,7 +38,8 @@ public class MainPageTest {
         }
         return posts;
     }
-    public void getPost(List<WebElement> posts) throws InterruptedException {
+
+    void getPost(List<WebElement> posts) throws InterruptedException {
         Thread.sleep(1000);
         int random = rand.nextInt((posts.size()) - 1);
         posts.get(random).click();
@@ -44,7 +53,8 @@ public class MainPageTest {
         Thread.sleep(1000);
         driver.findElement(By.cssSelector("button.sqdOP.yWX7d._8A5w5")).click();
     }
-    public void getFollowers(List<WebElement> people, int attempts) throws InterruptedException {
+
+    void getFollowers(List<WebElement> people, int attempts) throws InterruptedException {
         Thread.sleep(1000);
         if (people.size() > followRate) {
             follow(people, followRate);
@@ -53,7 +63,8 @@ public class MainPageTest {
             getFollowers(people, --attempts);
         }
     }
-    public void follow(List<WebElement> people, int followRate) throws InterruptedException {
+
+    void follow(List<WebElement> people, int followRate) throws InterruptedException {
         Thread.sleep(1000);
         if (followRate > 0) {
             people.get(people.size() - followRate).click();
@@ -62,52 +73,51 @@ public class MainPageTest {
     }
 
     @Test
-    public void openPage() throws InterruptedException {
+    public void run() throws InterruptedException {
         driver.get("https://www.instagram.com/");
-
-        // LOGIN
+        driver.manage().window().maximize();
         Thread.sleep(2000);
+        actions.sendKeys(Keys.chord(Keys.ALT, "d")).build().perform();
+        // LOGIN
         driver.findElement(By.xpath("//input[@aria-label='Phone number, username, or email']")).sendKeys(username);
         driver.findElement(By.xpath("//input[@aria-label='Password']")).sendKeys(password);
-        Thread.sleep(1000);
-        List<WebElement> buttons = driver.findElements(By.tagName("button"));
-        buttons.get(1).click();
-        Thread.sleep(1000);
-        driver.findElement(By.tagName("button")).click();
         Thread.sleep(2000);
-        driver.findElement(By.cssSelector("button.sqdOP.L3NKy.y3zKF")).click();
+        navigate(new String[] {"TAB", "TAB", "ENTER"});
+        actions.sendKeys(Keys.TAB).build().perform();
+        navigate(new String[] {"TAB", "ENTER"});
         Thread.sleep(2000);
-        driver.findElement(By.tagName("button")).click();
+        navigate(new String[] {"TAB", "ENTER"});
+        Thread.sleep(2000);
+        actions.sendKeys(Keys.TAB).build().perform();
+        navigate(new String[] {"TAB", "ENTER"});
+        Thread.sleep(1000);
 
-//        buttons = driver.findElements(By.xpath("//button[@tabindex='0']"));
-//        buttons.get(1).click();
-//
-//        // EXPLORE PAGE
-//        Thread.sleep(1000);
-//        List<WebElement> icons = driver.findElements(By.cssSelector("svg._8-yf5"));
-//        icons.get(2).click();
-//        Thread.sleep(1000);
-//        //-----------------------//
-//        /*
-//        JavascriptExecutor js = (JavascriptExecutor) driver;
-//        js.executeScript("window.scrollBy(0, document.body.scrollHeight)");
-//        Thread.sleep(1000);
-//        */
-//        //-----------------------//
-//        List<WebElement> posts = getPosts(setAttempts);
-//        //-----------------------//
-////        System.out.println(posts);
-//        //-----------------------//
-//
-//        // POST
-//        getPost(posts);
-//
-//        // LIKES
-//        Thread.sleep(1000);
-//        List<WebElement> people = driver.findElements(By.cssSelector("button.sqdOP.L3NKy.y3zKF"));
-//        getFollowers(people, setAttempts);
-//        for (WebElement person : people) {
-//            System.out.println(person);
-//        }
+        // EXPLORE PAGE
+        driver.findElement(By.cssSelector("div.eyXLr.wUAXj")).click();
+        for (int i = 0; i < 3; i++) {
+            actions.sendKeys(Keys.TAB).build().perform();
+        }
+        navigate(new String[] {"TAB", "ENTER"});
+        Thread.sleep(1000);
+        //-----------------------//
+        /*
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        js.executeScript("window.scrollBy(0, document.body.scrollHeight)");
+        Thread.sleep(1000);
+        */
+        //-----------------------//
+        List<WebElement> posts = getPosts(setAttempts);
+        //-----------------------//
+//        System.out.println(posts);
+        //-----------------------//
+
+        // POST
+        getPost(posts);
+        Thread.sleep(2000);
+
+        // LIKES
+        List<WebElement> people = driver.findElements(By.cssSelector("button.sqdOP.L3NKy.y3zKF"));
+        getFollowers(people, setAttempts);
+        System.out.println(people);
     }
 }
